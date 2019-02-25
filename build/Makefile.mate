@@ -1,0 +1,42 @@
+# include DIY-path
+include build/paths.mk
+
+# include project-variables
+include build/project.mk
+
+# some variables
+CC = g++
+
+OUTPUT = $(PROJECT)
+
+SRCDIR = src
+ONE_CPP = build/cpps.cpp
+ONE_HEADER = build/headers.h
+
+SOURCES = $(addprefix $(SRCDIR)/,$(CPP_FILES))
+HEADERS = $(addprefix $(SRCDIR)/,$(HEADER_FILES))
+
+REBUILDABLES = $(OUTPUT) $(ONE_CPP) $(ONE_HEADER)
+
+all : mate
+
+clean :
+	rm -f $(REBUILDABLES)
+	
+rebuild : clean all
+
+mate : $(ONE_CPP) $(ONE_HEADER) $(OUTPUT)
+
+$(OUTPUT) : $(ONE_CPP)
+	$(CC) $< $(COMPILER_OPTIONS) $(DIRECTORY_OPTIONS) -I$(SRCDIR) $(LIBRARIES) -o $(OUTPUT)
+
+# put all sources, headers into one file
+# comment out all #include "...", add #include "headers.h"
+$(ONE_CPP) : $(SOURCES)
+	cat $(SOURCES) > $@
+	@sed -i 's:#include \".*\":/\* & \*/:g' $(ONE_CPP)
+	@sed -i '1i #include \"headers.h\"' $(ONE_CPP)
+
+$(ONE_HEADER) : $(HEADERS)
+	cat $(HEADERS) >$@
+	@sed -i 's:#include \".*\":/\* & \*/:g' $(ONE_HEADER)

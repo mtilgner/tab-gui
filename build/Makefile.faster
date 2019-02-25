@@ -1,0 +1,33 @@
+# include DIY-path
+include build/paths.mk
+
+# include project-variables
+include build/project.mk
+
+# some variables
+CC = g++
+
+OUTPUT = $(PROJECT)
+
+SRCDIR = src
+FASTER = build/faster.cpp
+
+SOURCES = $(addprefix $(SRCDIR)/,$(CPP_FILES))
+HEADERS = $(addprefix $(SRCDIR)/,$(HEADER_FILES))
+
+REBUILDABLES = $(OUTPUT) $(FASTER)
+
+all : $(OUTPUT)
+
+clean :
+	rm -f $(REBUILDABLES)
+	
+rebuild : clean all
+
+$(OUTPUT) : $(FASTER)
+	$(CC) $(FASTER) $(COMPILER_OPTIONS) $(DIRECTORY_OPTIONS) -I$(SRCDIR) $(LIBRARIES) -o $(OUTPUT)
+
+# put all sources into one file
+$(FASTER) : $(SOURCES) $(HEADERS)
+	cat $< > $@
+
